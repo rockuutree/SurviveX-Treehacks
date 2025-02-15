@@ -55,6 +55,8 @@
 		03D03DAC2C7823830088D6A7 /* text_decoder_runner.h in Headers */ = {isa = PBXBuildFile; fileRef = 03D03DAA2C7823830088D6A7 /* text_decoder_runner.h */; };
 		03DDA0FB2BD6368100D234B3 /* base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 03DDA0FA2BD6368100D234B3 /* base64.h */; };
 		26A6A4282C8A3769005A761E /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26A6A4272C8A3769005A761E /* ImagePicker.swift */; };
+		9FA745922D61504800DC5823 /* llama3_2.pte in Resources */ = {isa = PBXBuildFile; fileRef = 9FA745902D61504800DC5823 /* llama3_2.pte */; };
+		9FA745932D61504800DC5823 /* tokenizer.model in Resources */ = {isa = PBXBuildFile; fileRef = 9FA745912D61504800DC5823 /* tokenizer.model */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -120,6 +122,8 @@
 		03D03DAA2C7823830088D6A7 /* text_decoder_runner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = text_decoder_runner.h; sourceTree = "<group>"; };
 		03DDA0FA2BD6368100D234B3 /* base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = base64.h; path = ../../../../extension/llm/tokenizer/base64.h; sourceTree = "<group>"; };
 		26A6A4272C8A3769005A761E /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
+		9FA745902D61504800DC5823 /* llama3_2.pte */ = {isa = PBXFileReference; lastKnownFileType = file; path = llama3_2.pte; sourceTree = "<group>"; };
+		9FA745912D61504800DC5823 /* tokenizer.model */ = {isa = PBXFileReference; lastKnownFileType = text; path = tokenizer.model; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -185,6 +189,7 @@
 		0324D68A2BAACB6900DEF36F /* SurviveX */ = {
 			isa = PBXGroup;
 			children = (
+				9FA7458F2D61500B00DC5823 /* Llama */,
 				0324D6892BAACB6900DEF36F /* Application */,
 				0320439E2BB4AC6600050211 /* SupportingFiles */,
 			);
@@ -288,6 +293,15 @@
 			);
 			name = sampler;
 			path = ../../../../../../extension/llm/sampler;
+			sourceTree = "<group>";
+		};
+		9FA7458F2D61500B00DC5823 /* Llama */ = {
+			isa = PBXGroup;
+			children = (
+				9FA745902D61504800DC5823 /* llama3_2.pte */,
+				9FA745912D61504800DC5823 /* tokenizer.model */,
+			);
+			path = Llama;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -418,6 +432,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				0324D6962BAACB7000DEF36F /* Assets.xcassets in Resources */,
+				9FA745922D61504800DC5823 /* llama3_2.pte in Resources */,
+				9FA745932D61504800DC5823 /* tokenizer.model in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

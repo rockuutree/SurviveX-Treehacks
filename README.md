@@ -8,4 +8,5 @@ A hands-free survival assistant that combines natural language communication wit
 
 1. Clone PyTorch [ExecuTorch](https://pytorch.org/executorch/main/getting-started-setup) and it's submodules. No need to install.
 2. In `examples/demo-apps/apple_ios` clone this repo.
-3. Open in Xcode and build as specified [here](https://github.com/pytorch/executorch/blob/main/examples/demo-apps/apple_ios/LLaMA/docs/delegates/xnnpack_README.md#configure-the-xcode-project).
+3. In `SurviveX/SurviveX/Llama/` add `llaama3_2.pte` and `tokenizer.model`
+4. Open in Xcode and build as specified [here](https://github.com/pytorch/executorch/blob/main/examples/demo-apps/apple_ios/LLaMA/docs/delegates/xnnpack_README.md#configure-the-xcode-project).

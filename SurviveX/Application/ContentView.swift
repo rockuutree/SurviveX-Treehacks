@@ -6,10 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import LLaMARunner
 import SwiftUI
 import UniformTypeIdentifiers
-
-import LLaMARunner
 
 class RunnerHolder: ObservableObject {
   var runner: Runner?
@@ -28,18 +27,27 @@ extension UIImage {
   func toRGBArray() -> [UInt8]? {
     guard let cgImage = self.cgImage else { return nil }
 
-    let width = Int(cgImage.width), height = Int(cgImage.height)
-    let totalPixels = width * height, bytesPerPixel = 4, bytesPerRow = bytesPerPixel * width
+    let width = Int(cgImage.width)
+    let height = Int(cgImage.height)
+    let totalPixels = width * height
+    let bytesPerPixel = 4
+    let bytesPerRow = bytesPerPixel * width
     var rgbValues = [UInt8](repeating: 0, count: totalPixels * 3)
-    var pixelData = [UInt8](repeating: 0, count: width * height * bytesPerPixel)
+    var pixelData = [UInt8](
+      repeating: 0, count: width * height * bytesPerPixel)
 
-    guard let context = CGContext(
-      data: &pixelData, width: width, height: height, bitsPerComponent: 8,
-      bytesPerRow: bytesPerRow, space: CGColorSpaceCreateDeviceRGB(),
-      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
-    ) else { return nil }
+    guard
+      let context = CGContext(
+        data: &pixelData, width: width, height: height,
+        bitsPerComponent: 8,
+        bytesPerRow: bytesPerRow, space: CGColorSpaceCreateDeviceRGB(),
+        bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+          | CGBitmapInfo.byteOrder32Big.rawValue
+      )
+    else { return nil }
 
-    context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+    context.draw(
+      cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
 
     for y in 0..<height {
       for x in 0..<width {
@@ -47,7 +55,8 @@ extension UIImage {
         let rgbIndex = y * width + x
         rgbValues[rgbIndex] = pixelData[pixelIndex]
         rgbValues[rgbIndex + totalPixels] = pixelData[pixelIndex + 1]
-        rgbValues[rgbIndex + totalPixels * 2] = pixelData[pixelIndex + 2]
+        rgbValues[rgbIndex + totalPixels * 2] =
+          pixelData[pixelIndex + 2]
       }
     }
     return rgbValues
@@ -62,7 +71,8 @@ struct ContentView: View {
   @State private var isGenerating = false
   @State private var shouldStopGenerating = false
   @State private var shouldStopShowingToken = false
-  private let runnerQueue = DispatchQueue(label: "org.pytorch.executorch.llama")
+  private let runnerQueue = DispatchQueue(
+    label: "org.pytorch.executorch.llama")
   @StateObject private var runnerHolder = RunnerHolder()
   @StateObject private var resourceManager = ResourceManager()
   @StateObject private var resourceMonitor = ResourceMonitor()
@@ -70,7 +80,8 @@ struct ContentView: View {
 
   @State private var isImagePickerPresented = false
   @State private var selectedImage: UIImage?
-  @State private var imagePickerSourceType: UIImagePickerController.SourceType = .photoLibrary
+  @State private var imagePickerSourceType: UIImagePickerController.SourceType =
+    .photoLibrary
 
   @State private var showingSettings = false
   @FocusState private var textFieldFocused: Bool
@@ -81,53 +92,35 @@ struct ContentView: View {
   }
 
   private var placeholder: String {
-    resourceManager.isModelValid ? resourceManager.isTokenizerValid ? "Prompt..." : "Select Tokenizer..." : "Select Model..."
+    resourceManager.isModelValid
+      ? resourceManager.isTokenizerValid
+        ? "Prompt..." : "Select Tokenizer..." : "Select Model..."
   }
 
   private var title: String {
-    resourceManager.isModelValid ? resourceManager.isTokenizerValid ? resourceManager.modelName : "Select Tokenizer..." : "Select Model..."
+    resourceManager.isModelValid
+      ? resourceManager.isTokenizerValid
+        ? resourceManager.modelName : "Select Tokenizer..."
+      : "Select Model..."
   }
 
   private var modelTitle: String {
-    resourceManager.isModelValid ? resourceManager.modelName : "Select Model..."
+    resourceManager.isModelValid
+      ? resourceManager.modelName : "Select Model..."
   }
 
   private var tokenizerTitle: String {
-    resourceManager.isTokenizerValid ? resourceManager.tokenizerName : "Select Tokenizer..."
+    resourceManager.isTokenizerValid
+      ? resourceManager.tokenizerName : "Select Tokenizer..."
   }
 
-  private var isInputEnabled: Bool { resourceManager.isModelValid && resourceManager.isTokenizerValid }
+  private var isInputEnabled: Bool {
+    resourceManager.isModelValid && resourceManager.isTokenizerValid
+  }
 
   var body: some View {
     NavigationView {
       VStack {
-        if showingSettings {
-          VStack(spacing: 20) {
-            HStack {
-              VStack(spacing: 10) {
-                Button(action: { pickerType = .model }) {
-                  Label(modelTitle, systemImage: "doc")
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                    .frame(maxWidth: 300, alignment: .leading)
-                }
-                Button(action: { pickerType = .tokenizer }) {
-                  Label(tokenizerTitle, systemImage: "doc")
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                    .frame(maxWidth: 300, alignment: .leading)
-                }
-              }
-              .padding()
-              .background(Color.gray.opacity(0.1))
-              .cornerRadius(10)
-              .fixedSize(horizontal: true, vertical: false)
-              Spacer()
-            }
-            .padding()
-          }
-        }
-
         MessageListView(messages: $messages)
           .simultaneousGesture(
             DragGesture().onChanged { value in
@@ -144,34 +137,6 @@ struct ContentView: View {
           }
 
         HStack {
-          Button(action: {
-            imagePickerSourceType = .photoLibrary
-            isImagePickerPresented = true
-          }) {
-            Image(systemName: "photo.on.rectangle")
-              .resizable()
-              .scaledToFit()
-              .frame(width: 24, height: 24)
-          }
-          .background(Color.clear)
-          .cornerRadius(8)
-
-          Button(action: {
-            if UIImagePickerController.isSourceTypeAvailable(.camera) {
-              imagePickerSourceType = .camera
-              isImagePickerPresented = true
-            } else {
-              print("Camera not available")
-            }
-          }) {
-            Image(systemName: "camera")
-              .resizable()
-              .scaledToFit()
-              .frame(width: 24, height: 24)
-          }
-          .background(Color.clear)
-          .cornerRadius(8)
-
           TextField(placeholder, text: $prompt, axis: .vertical)
             .padding(8)
             .background(Color.gray.opacity(0.1))
@@ -179,7 +144,9 @@ struct ContentView: View {
             .lineLimit(1...10)
             .overlay(
               RoundedRectangle(cornerRadius: 20)
-                .stroke(isInputEnabled ? Color.blue : Color.gray, lineWidth: 1)
+                .stroke(
+                  isInputEnabled ? Color.blue : Color.gray,
+                  lineWidth: 1)
             )
             .disabled(!isInputEnabled)
             .focused($textFieldFocused)
@@ -189,47 +156,41 @@ struct ContentView: View {
             }
 
           Button(action: isGenerating ? stop : generate) {
-            Image(systemName: isGenerating ? "stop.circle" : "arrowshape.up.circle.fill")
-              .resizable()
-              .aspectRatio(contentMode: .fit)
-              .frame(height: 28)
+            Image(
+              systemName: isGenerating
+                ? "stop.circle" : "arrowshape.up.circle.fill"
+            )
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(height: 28)
           }
-          .disabled(isGenerating ? shouldStopGenerating : (!isInputEnabled || prompt.isEmpty))
+          .disabled(
+            isGenerating
+              ? shouldStopGenerating
+              : (!isInputEnabled || prompt.isEmpty))
         }
         .padding([.leading, .trailing, .bottom], 10)
-        .sheet(isPresented: $isImagePickerPresented, onDismiss: addSelectedImageMessage) {
-          ImagePicker(selectedImage: $selectedImage, sourceType: imagePickerSourceType)
-            .id(imagePickerSourceType.rawValue)
-        }
       }
       .navigationBarTitle(title, displayMode: .inline)
       .navigationBarItems(
         leading:
-          Button(action: {
-            showingSettings.toggle()
-          }) {
-            Image(systemName: "folder")
-              .imageScale(.large)
+          Menu {
+            Section(header: Text("Memory")) {
+              Text("Used: \(resourceMonitor.usedMemory) Mb")
+              Text("Available: \(resourceMonitor.usedMemory) Mb")
+            }
+          } label: {
+            Text("\(resourceMonitor.usedMemory) Mb")
+          }
+          .onAppear {
+            resourceMonitor.start()
+          }
+          .onDisappear {
+            resourceMonitor.stop()
           },
         trailing:
-          HStack {
-            Menu {
-              Section(header: Text("Memory")) {
-                Text("Used: \(resourceMonitor.usedMemory) Mb")
-                Text("Available: \(resourceMonitor.usedMemory) Mb")
-              }
-            } label: {
-              Text("\(resourceMonitor.usedMemory) Mb")
-            }
-            .onAppear {
-              resourceMonitor.start()
-            }
-            .onDisappear {
-              resourceMonitor.stop()
-            }
-            Button(action: { showingLogs = true }) {
-              Image(systemName: "list.bullet.rectangle")
-            }
+          Button(action: { showingLogs = true }) {
+            Image(systemName: "list.bullet.rectangle")
           }
       )
       .sheet(isPresented: $showingLogs) {
@@ -237,22 +198,17 @@ struct ContentView: View {
           LogView(logManager: logManager)
         }
       }
-      .fileImporter(
-        isPresented: Binding<Bool>(
-          get: { pickerType != nil },
-          set: { if !$0 { pickerType = nil } }
-        ),
-        allowedContentTypes: allowedContentTypes(),
-        allowsMultipleSelection: false
-      ) { [pickerType] result in
-        handleFileImportResult(pickerType, result)
-      }
       .onAppear {
         do {
           try resourceManager.createDirectoriesIfNeeded()
         } catch {
           withAnimation {
-            messages.append(Message(type: .info, text: "Error creating content directories: \(error.localizedDescription)"))
+            messages.append(
+              Message(
+                type: .info,
+                text:
+                  "Error creating content directories: \(error.localizedDescription)"
+              ))
           }
         }
       }
@@ -282,7 +238,8 @@ struct ContentView: View {
     showingSettings = false
 
     messages.append(Message(text: text))
-    messages.append(Message(type: useLlama ? .llamagenerated : .llavagenerated))
+    messages.append(
+      Message(type: useLlama ? .llamagenerated : .llavagenerated))
 
     runnerQueue.async {
       defer {
@@ -293,9 +250,15 @@ struct ContentView: View {
       }
 
       if useLlama {
-        runnerHolder.runner = runnerHolder.runner ?? Runner(modelPath: modelPath, tokenizerPath: tokenizerPath)
+        runnerHolder.runner =
+          runnerHolder.runner
+          ?? Runner(
+            modelPath: modelPath, tokenizerPath: tokenizerPath)
       } else {
-        runnerHolder.llavaRunner = runnerHolder.llavaRunner ?? LLaVARunner(modelPath: modelPath, tokenizerPath: tokenizerPath)
+        runnerHolder.llavaRunner =
+          runnerHolder.llavaRunner
+          ?? LLaVARunner(
+            modelPath: modelPath, tokenizerPath: tokenizerPath)
       }
 
       guard !shouldStopGenerating else { return }
@@ -315,9 +278,11 @@ struct ContentView: View {
               var message = messages.removeLast()
               message.type = .info
               if let error {
-                message.text = "Model loading failed: error \((error as NSError).code)"
+                message.text =
+                  "Model loading failed: error \((error as NSError).code)"
               } else {
-                message.text = "Model loaded in \(String(format: "%.2f", loadTime)) s"
+                message.text =
+                  "Model loaded in \(String(format: "%.2f", loadTime)) s"
               }
               messages.append(message)
               if error == nil {
@@ -345,9 +310,11 @@ struct ContentView: View {
               var message = messages.removeLast()
               message.type = .info
               if let error {
-                message.text = "Model loading failed: error \((error as NSError).code)"
+                message.text =
+                  "Model loading failed: error \((error as NSError).code)"
               } else {
-                message.text = "Model loaded in \(String(format: "%.2f", loadTime)) s"
+                message.text =
+                  "Model loaded in \(String(format: "%.2f", loadTime)) s"
               }
               messages.append(message)
               if error == nil {
@@ -380,11 +347,15 @@ struct ContentView: View {
           let llava_prompt = "\(text) ASSISTANT"
 
           newHeight = MAX_WIDTH * img.size.height / img.size.width
-          let resizedImage = img.resized(to: CGSize(width: MAX_WIDTH, height: newHeight))
+          let resizedImage = img.resized(
+            to: CGSize(width: MAX_WIDTH, height: newHeight))
           rgbArray = resizedImage.toRGBArray()
           imageBuffer = UnsafeMutableRawPointer(mutating: rgbArray)
 
-          try runnerHolder.llavaRunner?.generate(imageBuffer!, width: MAX_WIDTH, height: newHeight, prompt: llava_prompt, sequenceLength: seq_len) { token in
+          try runnerHolder.llavaRunner?.generate(
+            imageBuffer!, width: MAX_WIDTH, height: newHeight,
+            prompt: llava_prompt, sequenceLength: seq_len
+          ) { token in
 
             if token != llava_prompt {
               if token == "</s>" {
@@ -411,9 +382,12 @@ struct ContentView: View {
             }
           }
         } else {
-          let llama3_prompt = "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\(text)<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
+          let llama3_prompt =
+            "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\(text)<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
 
-          try runnerHolder.runner?.generate(llama3_prompt, sequenceLength: seq_len) { token in
+          try runnerHolder.runner?.generate(
+            llama3_prompt, sequenceLength: seq_len
+          ) { token in
 
             NSLog(">>> token={\(token)}")
             if token != llama3_prompt {
@@ -422,7 +396,8 @@ struct ContentView: View {
               if token == "<|eot_id|>" {
                 shouldStopShowingToken = true
               } else {
-                tokens.append(token.trimmingCharacters(in: .newlines))
+                tokens.append(
+                  token.trimmingCharacters(in: .newlines))
                 if tokens.count > 2 {
                   let text = tokens.joined()
                   let count = tokens.count
@@ -447,7 +422,8 @@ struct ContentView: View {
           withAnimation {
             var message = messages.removeLast()
             message.type = .info
-            message.text = "Text generation failed: error \((error as NSError).code)"
+            message.text =
+              "Text generation failed: error \((error as NSError).code)"
             messages.append(message)
           }
         }
@@ -465,16 +441,22 @@ struct ContentView: View {
     case .model:
       return [UTType(filenameExtension: "pte")].compactMap { $0 }
     case .tokenizer:
-      return [UTType(filenameExtension: "bin"), UTType(filenameExtension: "model")].compactMap { $0 }
+      return [
+        UTType(filenameExtension: "bin"),
+        UTType(filenameExtension: "model"),
+      ].compactMap { $0 }
     }
   }
 
-  private func handleFileImportResult(_ pickerType: PickerType?, _ result: Result<[URL], Error>) {
+  private func handleFileImportResult(
+    _ pickerType: PickerType?, _ result: Result<[URL], Error>
+  ) {
     switch result {
     case .success(let urls):
       guard let url = urls.first, let pickerType else {
         withAnimation {
-          messages.append(Message(type: .info, text: "Failed to select a file"))
+          messages.append(
+            Message(type: .info, text: "Failed to select a file"))
         }
         return
       }
@@ -494,7 +476,12 @@ struct ContentView: View {
       }
     case .failure(let error):
       withAnimation {
-        messages.append(Message(type: .info, text: "Failed to select a file: \(error.localizedDescription)"))
+        messages.append(
+          Message(
+            type: .info,
+            text:
+              "Failed to select a file: \(error.localizedDescription)"
+          ))
       }
     }
   }
@@ -502,6 +489,8 @@ struct ContentView: View {
 
 extension View {
   func hideKeyboard() {
-    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    UIApplication.shared.sendAction(
+      #selector(UIResponder.resignFirstResponder), to: nil, from: nil,
+      for: nil)
   }
 }
