@@ -47,19 +47,35 @@ class SpeechRecognitionService: NSObject, SFSpeechRecognizerDelegate {
             }
         }
         
-        // Check microphone authorization
+        // Check microphone authorization using the new API
         let micAuth = await withCheckedContinuation { continuation in
-            switch AVAudioSession.sharedInstance().recordPermission {
-            case .granted:
-                continuation.resume(returning: true)
-            case .denied:
-                continuation.resume(returning: false)
-            case .undetermined:
-                AVAudioSession.sharedInstance().requestRecordPermission { granted in
-                    continuation.resume(returning: granted)
+            if #available(iOS 17.0, *) {
+                switch AVAudioApplication.shared.recordPermission {
+                case .granted:
+                    continuation.resume(returning: true)
+                case .denied:
+                    continuation.resume(returning: false)
+                case .undetermined:
+                    AVAudioApplication.requestRecordPermission { granted in
+                        continuation.resume(returning: granted)
+                    }
+                @unknown default:
+                    continuation.resume(returning: false)
                 }
-            @unknown default:
-                continuation.resume(returning: false)
+            } else {
+                // Fallback for iOS 16 and earlier
+                switch AVAudioSession.sharedInstance().recordPermission {
+                case .granted:
+                    continuation.resume(returning: true)
+                case .denied:
+                    continuation.resume(returning: false)
+                case .undetermined:
+                    AVAudioSession.sharedInstance().requestRecordPermission { granted in
+                        continuation.resume(returning: granted)
+                    }
+                @unknown default:
+                    continuation.resume(returning: false)
+                }
             }
         }
         

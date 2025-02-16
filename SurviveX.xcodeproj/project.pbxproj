@@ -54,6 +54,8 @@
 		03D03DAC2C7823830088D6A7 /* text_decoder_runner.h in Headers */ = {isa = PBXBuildFile; fileRef = 03D03DAA2C7823830088D6A7 /* text_decoder_runner.h */; };
 		03DDA0FB2BD6368100D234B3 /* base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 03DDA0FA2BD6368100D234B3 /* base64.h */; };
 		941FF2D32D61A9220049CB32 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 941FF2D22D61A9220049CB32 /* SpeechRecognitionService.swift */; };
+		941FF2D52D61B6810049CB32 /* irregular_418.csv in Resources */ = {isa = PBXBuildFile; fileRef = 941FF2D42D61B6810049CB32 /* irregular_418.csv */; };
+		941FF2D72D61B78A0049CB32 /* HeartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 941FF2D62D61B7870049CB32 /* HeartView.swift */; };
 		9FA745922D61504800DC5823 /* llama3_2.pte in Resources */ = {isa = PBXBuildFile; fileRef = 9FA745902D61504800DC5823 /* llama3_2.pte */; };
 		9FA745932D61504800DC5823 /* tokenizer.model in Resources */ = {isa = PBXBuildFile; fileRef = 9FA745912D61504800DC5823 /* tokenizer.model */; };
 /* End PBXBuildFile section */
@@ -83,7 +85,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		0320439D2BB4AC6600050211 /* SurviveXFinal-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SurviveXFinal-Info.plist"; sourceTree = "<group>"; };
+		0320439D2BB4AC6600050211 /* SurviveX-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SurviveX-Info.plist"; sourceTree = "<group>"; };
 		0324D6802BAACB6900DEF36F /* App.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		0324D6812BAACB6900DEF36F /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		0324D6822BAACB6900DEF36F /* LogManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogManager.swift; sourceTree = "<group>"; };
@@ -96,7 +98,7 @@
 		0324D6992BAACB7C00DEF36F /* LLaMARunner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LLaMARunner.h; sourceTree = "<group>"; };
 		0324D69A2BAACB7C00DEF36F /* LLaMARunner.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LLaMARunner.mm; sourceTree = "<group>"; };
 		035A5E942BB4B523001E0553 /* SurviveX.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = SurviveX.entitlements; sourceTree = "<group>"; };
-		036CAF9D2BB1444500D6C2D5 /* SurviveXFinal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SurviveXFinal.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		036CAF9D2BB1444500D6C2D5 /* SurviveX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SurviveX.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		03729ED52BB1F8DE00152F2E /* LLaMARunner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LLaMARunner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		03729F072BB203B300152F2E /* runner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = runner.cpp; path = ../../../examples/models/llama/runner/runner.cpp; sourceTree = "<group>"; };
 		03729F082BB203B300152F2E /* runner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = runner.h; path = ../../../examples/models/llama/runner/runner.h; sourceTree = "<group>"; };
@@ -120,6 +122,8 @@
 		03D03DAA2C7823830088D6A7 /* text_decoder_runner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = text_decoder_runner.h; sourceTree = "<group>"; };
 		03DDA0FA2BD6368100D234B3 /* base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = base64.h; path = ../../../../extension/llm/tokenizer/base64.h; sourceTree = "<group>"; };
 		941FF2D22D61A9220049CB32 /* SpeechRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionService.swift; sourceTree = "<group>"; };
+		941FF2D42D61B6810049CB32 /* irregular_418.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = irregular_418.csv; sourceTree = "<group>"; };
+		941FF2D62D61B7870049CB32 /* HeartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartView.swift; sourceTree = "<group>"; };
 		9FA745902D61504800DC5823 /* llama3_2.pte */ = {isa = PBXFileReference; lastKnownFileType = file; path = llama3_2.pte; sourceTree = "<group>"; };
 		9FA745912D61504800DC5823 /* tokenizer.model */ = {isa = PBXFileReference; lastKnownFileType = text; path = tokenizer.model; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -160,7 +164,7 @@
 		0320439E2BB4AC6600050211 /* SupportingFiles */ = {
 			isa = PBXGroup;
 			children = (
-				0320439D2BB4AC6600050211 /* SurviveXFinal-Info.plist */,
+				0320439D2BB4AC6600050211 /* SurviveX-Info.plist */,
 				03C5F51D2CE7D37100D6CE3F /* Debug.xcconfig */,
 				03C5F51C2CE7D35C00D6CE3F /* Release.xcconfig */,
 			);
@@ -170,6 +174,8 @@
 		0324D6892BAACB6900DEF36F /* Application */ = {
 			isa = PBXGroup;
 			children = (
+				941FF2D42D61B6810049CB32 /* irregular_418.csv */,
+				941FF2D62D61B7870049CB32 /* HeartView.swift */,
 				0324D6802BAACB6900DEF36F /* App.swift */,
 				0324D6812BAACB6900DEF36F /* ContentView.swift */,
 				941FF2D22D61A9220049CB32 /* SpeechRecognitionService.swift */,
@@ -236,7 +242,7 @@
 				0324D6952BAACB7000DEF36F /* SurviveXAssets */,
 				035A5E952BB4B523001E0553 /* SurviveXEntitlements */,
 				0324D69F2BAACB7C00DEF36F /* LLaMARunner */,
-				036CAF9D2BB1444500D6C2D5 /* SurviveXFinal.app */,
+				036CAF9D2BB1444500D6C2D5 /* SurviveX.app */,
 				03729ED52BB1F8DE00152F2E /* LLaMARunner.framework */,
 			);
 			sourceTree = "<group>";
@@ -326,9 +332,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		032C016E2AC228E6002955E1 /* SurviveXFinal */ = {
+		032C016E2AC228E6002955E1 /* SurviveX */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 032C017D2AC228E7002955E1 /* Build configuration list for PBXNativeTarget "SurviveXFinal" */;
+			buildConfigurationList = 032C017D2AC228E7002955E1 /* Build configuration list for PBXNativeTarget "SurviveX" */;
 			buildPhases = (
 				032C016B2AC228E6002955E1 /* Sources */,
 				032C016C2AC228E6002955E1 /* Frameworks */,
@@ -340,11 +346,11 @@
 			dependencies = (
 				03729EDA2BB1F8DE00152F2E /* PBXTargetDependency */,
 			);
-			name = SurviveXFinal;
+			name = SurviveX;
 			packageProductDependencies = (
 			);
 			productName = LLaMA;
-			productReference = 036CAF9D2BB1444500D6C2D5 /* SurviveXFinal.app */;
+			productReference = 036CAF9D2BB1444500D6C2D5 /* SurviveX.app */;
 			productType = "com.apple.product-type.application";
 		};
 		03729ED42BB1F8DE00152F2E /* LLaMARunner */ = {
@@ -401,7 +407,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 032C016A2AC228E5002955E1 /* Build configuration list for PBXProject "SurviveXFinal" */;
+			buildConfigurationList = 032C016A2AC228E5002955E1 /* Build configuration list for PBXProject "SurviveX" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -418,7 +424,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				032C016E2AC228E6002955E1 /* SurviveXFinal */,
+				032C016E2AC228E6002955E1 /* SurviveX */,
 				03729ED42BB1F8DE00152F2E /* LLaMARunner */,
 			);
 		};
@@ -429,6 +435,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				941FF2D52D61B6810049CB32 /* irregular_418.csv in Resources */,
 				0324D6962BAACB7000DEF36F /* Assets.xcassets in Resources */,
 				9FA745922D61504800DC5823 /* llama3_2.pte in Resources */,
 				9FA745932D61504800DC5823 /* tokenizer.model in Resources */,
@@ -474,6 +481,7 @@
 				0324D6932BAACB6900DEF36F /* ResourceMonitor.swift in Sources */,
 				941FF2D32D61A9220049CB32 /* SpeechRecognitionService.swift in Sources */,
 				0324D68D2BAACB6900DEF36F /* LogManager.swift in Sources */,
+				941FF2D72D61B78A0049CB32 /* HeartView.swift in Sources */,
 				0324D68E2BAACB6900DEF36F /* LogView.swift in Sources */,
 				0324D68F2BAACB6900DEF36F /* Message.swift in Sources */,
 				0324D68C2BAACB6900DEF36F /* ContentView.swift in Sources */,
@@ -654,7 +662,7 @@
 				DEVELOPMENT_TEAM = HKF2NJJJ7V;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "SurviveX/SupportingFiles/SurviveXFinal-Info.plist";
+				INFOPLIST_FILE = "SurviveX/SupportingFiles/SurviveX-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = SurviveX;
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
@@ -665,7 +673,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.vusurvivex667;
-				PRODUCT_NAME = SurviveXFinal;
+				PRODUCT_NAME = SurviveX;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -687,7 +695,7 @@
 				DEVELOPMENT_TEAM = HKF2NJJJ7V;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "SurviveX/SupportingFiles/SurviveXFinal-Info.plist";
+				INFOPLIST_FILE = "SurviveX/SupportingFiles/SurviveX-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = SurviveX;
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "";
@@ -698,7 +706,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.vusurvivex667;
-				PRODUCT_NAME = SurviveXFinal;
+				PRODUCT_NAME = SurviveX;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -787,7 +795,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		032C016A2AC228E5002955E1 /* Build configuration list for PBXProject "SurviveXFinal" */ = {
+		032C016A2AC228E5002955E1 /* Build configuration list for PBXProject "SurviveX" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				032C017B2AC228E7002955E1 /* Debug */,
@@ -796,7 +804,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		032C017D2AC228E7002955E1 /* Build configuration list for PBXNativeTarget "SurviveXFinal" */ = {
+		032C017D2AC228E7002955E1 /* Build configuration list for PBXNativeTarget "SurviveX" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				032C017E2AC228E7002955E1 /* Debug */,

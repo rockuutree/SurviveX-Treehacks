@@ -74,7 +74,9 @@ struct ContentView: View {
               HStack(spacing: 20) {  // Increased spacing between elements
                 TextField(placeholder, text: $prompt, axis: .vertical)
                   .font(.system(size: 24, weight: .bold))  // Bold black text
+                  .tint(.black)
                   .padding(16)    // More padding
+                  .foregroundColor(.black)
                   .background(Color.white.opacity(0.8))
                   .cornerRadius(30)  // Larger corner radius
                   .lineLimit(1...10)
