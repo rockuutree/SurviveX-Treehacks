@@ -14,7 +14,6 @@
 		0324D68F2BAACB6900DEF36F /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0324D6842BAACB6900DEF36F /* Message.swift */; };
 		0324D6902BAACB6900DEF36F /* MessageListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0324D6852BAACB6900DEF36F /* MessageListView.swift */; };
 		0324D6912BAACB6900DEF36F /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0324D6862BAACB6900DEF36F /* MessageView.swift */; };
-		0324D6922BAACB6900DEF36F /* ResourceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0324D6872BAACB6900DEF36F /* ResourceManager.swift */; };
 		0324D6932BAACB6900DEF36F /* ResourceMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0324D6882BAACB6900DEF36F /* ResourceMonitor.swift */; };
 		0324D6962BAACB7000DEF36F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0324D6942BAACB7000DEF36F /* Assets.xcassets */; };
 		03729EDC2BB1F8DE00152F2E /* LLaMARunner.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 03729ED52BB1F8DE00152F2E /* LLaMARunner.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -54,7 +53,6 @@
 		03D03DAB2C7823830088D6A7 /* text_decoder_runner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03D03DA92C7823830088D6A7 /* text_decoder_runner.cpp */; };
 		03D03DAC2C7823830088D6A7 /* text_decoder_runner.h in Headers */ = {isa = PBXBuildFile; fileRef = 03D03DAA2C7823830088D6A7 /* text_decoder_runner.h */; };
 		03DDA0FB2BD6368100D234B3 /* base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 03DDA0FA2BD6368100D234B3 /* base64.h */; };
-		26A6A4282C8A3769005A761E /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26A6A4272C8A3769005A761E /* ImagePicker.swift */; };
 		9FA745922D61504800DC5823 /* llama3_2.pte in Resources */ = {isa = PBXBuildFile; fileRef = 9FA745902D61504800DC5823 /* llama3_2.pte */; };
 		9FA745932D61504800DC5823 /* tokenizer.model in Resources */ = {isa = PBXBuildFile; fileRef = 9FA745912D61504800DC5823 /* tokenizer.model */; };
 /* End PBXBuildFile section */
@@ -92,7 +90,6 @@
 		0324D6842BAACB6900DEF36F /* Message.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		0324D6852BAACB6900DEF36F /* MessageListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageListView.swift; sourceTree = "<group>"; };
 		0324D6862BAACB6900DEF36F /* MessageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageView.swift; sourceTree = "<group>"; };
-		0324D6872BAACB6900DEF36F /* ResourceManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResourceManager.swift; sourceTree = "<group>"; };
 		0324D6882BAACB6900DEF36F /* ResourceMonitor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResourceMonitor.swift; sourceTree = "<group>"; };
 		0324D6942BAACB7000DEF36F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0324D6992BAACB7C00DEF36F /* LLaMARunner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LLaMARunner.h; sourceTree = "<group>"; };
@@ -121,7 +118,6 @@
 		03D03DA92C7823830088D6A7 /* text_decoder_runner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = text_decoder_runner.cpp; sourceTree = "<group>"; };
 		03D03DAA2C7823830088D6A7 /* text_decoder_runner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = text_decoder_runner.h; sourceTree = "<group>"; };
 		03DDA0FA2BD6368100D234B3 /* base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = base64.h; path = ../../../../extension/llm/tokenizer/base64.h; sourceTree = "<group>"; };
-		26A6A4272C8A3769005A761E /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		9FA745902D61504800DC5823 /* llama3_2.pte */ = {isa = PBXFileReference; lastKnownFileType = file; path = llama3_2.pte; sourceTree = "<group>"; };
 		9FA745912D61504800DC5823 /* tokenizer.model */ = {isa = PBXFileReference; lastKnownFileType = text; path = tokenizer.model; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -179,9 +175,7 @@
 				0324D6842BAACB6900DEF36F /* Message.swift */,
 				0324D6852BAACB6900DEF36F /* MessageListView.swift */,
 				0324D6862BAACB6900DEF36F /* MessageView.swift */,
-				0324D6872BAACB6900DEF36F /* ResourceManager.swift */,
 				0324D6882BAACB6900DEF36F /* ResourceMonitor.swift */,
-				26A6A4272C8A3769005A761E /* ImagePicker.swift */,
 			);
 			path = Application;
 			sourceTree = "<group>";
@@ -477,10 +471,8 @@
 				0324D68D2BAACB6900DEF36F /* LogManager.swift in Sources */,
 				0324D68E2BAACB6900DEF36F /* LogView.swift in Sources */,
 				0324D68F2BAACB6900DEF36F /* Message.swift in Sources */,
-				0324D6922BAACB6900DEF36F /* ResourceManager.swift in Sources */,
 				0324D68C2BAACB6900DEF36F /* ContentView.swift in Sources */,
 				0324D6902BAACB6900DEF36F /* MessageListView.swift in Sources */,
-				26A6A4282C8A3769005A761E /* ImagePicker.swift in Sources */,
 				0324D6912BAACB6900DEF36F /* MessageView.swift in Sources */,
 				0324D68B2BAACB6900DEF36F /* App.swift in Sources */,
 			);

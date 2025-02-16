@@ -10,59 +10,6 @@ import LLaMARunner
 import SwiftUI
 import UniformTypeIdentifiers
 
-class RunnerHolder: ObservableObject {
-  var runner: Runner?
-  var llavaRunner: LLaVARunner?
-}
-
-extension UIImage {
-  func resized(to newSize: CGSize) -> UIImage {
-    let format = UIGraphicsImageRendererFormat.default()
-    format.scale = 1
-    return UIGraphicsImageRenderer(size: newSize, format: format).image {
-      _ in draw(in: CGRect(origin: .zero, size: newSize))
-    }
-  }
-
-  func toRGBArray() -> [UInt8]? {
-    guard let cgImage = self.cgImage else { return nil }
-
-    let width = Int(cgImage.width)
-    let height = Int(cgImage.height)
-    let totalPixels = width * height
-    let bytesPerPixel = 4
-    let bytesPerRow = bytesPerPixel * width
-    var rgbValues = [UInt8](repeating: 0, count: totalPixels * 3)
-    var pixelData = [UInt8](
-      repeating: 0, count: width * height * bytesPerPixel)
-
-    guard
-      let context = CGContext(
-        data: &pixelData, width: width, height: height,
-        bitsPerComponent: 8,
-        bytesPerRow: bytesPerRow, space: CGColorSpaceCreateDeviceRGB(),
-        bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-          | CGBitmapInfo.byteOrder32Big.rawValue
-      )
-    else { return nil }
-
-    context.draw(
-      cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
-
-    for y in 0..<height {
-      for x in 0..<width {
-        let pixelIndex = (y * width + x) * bytesPerPixel
-        let rgbIndex = y * width + x
-        rgbValues[rgbIndex] = pixelData[pixelIndex]
-        rgbValues[rgbIndex + totalPixels] = pixelData[pixelIndex + 1]
-        rgbValues[rgbIndex + totalPixels * 2] =
-          pixelData[pixelIndex + 2]
-      }
-    }
-    return rgbValues
-  }
-}
-
 struct ContentView: View {
   @State private var prompt = ""
   @State private var messages: [Message] = []
@@ -73,12 +20,10 @@ struct ContentView: View {
   @State private var shouldStopShowingToken = false
   private let runnerQueue = DispatchQueue(
     label: "org.pytorch.executorch.llama")
-  @StateObject private var runnerHolder = RunnerHolder()
-  @StateObject private var resourceManager = ResourceManager()
+  @State private var runnerHolder: Runner?
   @StateObject private var resourceMonitor = ResourceMonitor()
   @StateObject private var logManager = LogManager()
 
-  @State private var showingSettings = false
   @FocusState private var textFieldFocused: Bool
 
   enum PickerType {
@@ -110,12 +55,10 @@ struct ContentView: View {
               if value.translation.height > 10 {
                 hideKeyboard()
               }
-              showingSettings = false
               textFieldFocused = false
             }
           )
           .onTapGesture {
-            showingSettings = false
             textFieldFocused = false
           }
 
@@ -134,9 +77,6 @@ struct ContentView: View {
             .disabled(!validModelAndTokenizer)
             .focused($textFieldFocused)
             .onAppear { textFieldFocused = false }
-            .onTapGesture {
-              showingSettings = false
-            }
 
           Button(action: isGenerating ? stop : generate) {
             Image(
@@ -150,7 +90,7 @@ struct ContentView: View {
           .disabled(
             isGenerating
               ? shouldStopGenerating
-            : (!validModelAndTokenizer || prompt.isEmpty))
+              : (!validModelAndTokenizer || prompt.isEmpty))
         }
         .padding([.leading, .trailing, .bottom], 10)
       }
@@ -198,7 +138,6 @@ struct ContentView: View {
 
     prompt = ""
     hideKeyboard()
-    showingSettings = false
 
     messages.append(Message(text: text))
     messages.append(Message(type: .llamagenerated))
@@ -211,14 +150,12 @@ struct ContentView: View {
       }
 
       // Create runner.
-      runnerHolder.runner =
-        runnerHolder.runner
-        ?? Runner(
-          modelPath: modelPath, tokenizerPath: tokenPath)
+      runnerHolder =
+        runnerHolder ?? Runner(modelPath: modelPath, tokenizerPath: tokenPath)
 
       // Generate response.
       guard !shouldStopGenerating else { return }
-      if let runner = runnerHolder.runner, !runner.isLoaded() {
+      if let runner = runnerHolder, !runner.isLoaded() {
         var error: Error?
         let startLoadTime = Date()
         do {
@@ -264,7 +201,7 @@ struct ContentView: View {
         let llama3_prompt =
           "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\(text)<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
 
-        try runnerHolder.runner?.generate(
+        try runnerHolder?.generate(
           llama3_prompt, sequenceLength: seq_len
         ) { token in
 
@@ -290,7 +227,7 @@ struct ContentView: View {
                 }
               }
               if shouldStopGenerating {
-                runnerHolder.runner?.stop()
+                runnerHolder?.stop()
               }
             }
           }
@@ -311,57 +248,6 @@ struct ContentView: View {
 
   private func stop() {
     shouldStopGenerating = true
-  }
-
-  private func allowedContentTypes() -> [UTType] {
-    guard let pickerType else { return [] }
-    switch pickerType {
-    case .model:
-      return [UTType(filenameExtension: "pte")].compactMap { $0 }
-    case .tokenizer:
-      return [
-        UTType(filenameExtension: "bin"),
-        UTType(filenameExtension: "model"),
-      ].compactMap { $0 }
-    }
-  }
-
-  private func handleFileImportResult(
-    _ pickerType: PickerType?, _ result: Result<[URL], Error>
-  ) {
-    switch result {
-    case .success(let urls):
-      guard let url = urls.first, let pickerType else {
-        withAnimation {
-          messages.append(
-            Message(type: .info, text: "Failed to select a file"))
-        }
-        return
-      }
-      runnerQueue.async {
-        runnerHolder.runner = nil
-        runnerHolder.llavaRunner = nil
-      }
-      switch pickerType {
-      case .model:
-        resourceManager.modelPath = url.path
-      case .tokenizer:
-        resourceManager.tokenizerPath = url.path
-      }
-      if resourceManager.isModelValid && resourceManager.isTokenizerValid {
-        showingSettings = false
-        textFieldFocused = true
-      }
-    case .failure(let error):
-      withAnimation {
-        messages.append(
-          Message(
-            type: .info,
-            text:
-              "Failed to select a file: \(error.localizedDescription)"
-          ))
-      }
-    }
   }
 }
 
