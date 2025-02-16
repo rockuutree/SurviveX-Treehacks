@@ -31,6 +31,6 @@ Whether you need to treat an injury, start a fire, fix up your broken car on the
 
 1. Clone PyTorch [ExecuTorch](https://pytorch.org/executorch/main/getting-started-setup) and it's submodules. No need to install.
 2. In `examples/demo-apps/apple_ios` clone this repo.
-3. In `SurviveX/SurviveX/Llama/` add `llaama3_2.pte` and `tokenizer.model`
+3. In `SurviveX/SurviveX/Llama/` add `llaama3_2.pte` and `tokenizer.model` from our [Google Drive](https://drive.google.com/drive/folders/1fUfmI3E7uDgLrk0CRkHtEo1PfuL4Kqj8?usp=sharing).
 4. Open in Xcode and build as specified [here](https://github.com/pytorch/executorch/blob/main/examples/demo-apps/apple_ios/LLaMA/docs/delegates/xnnpack_README.md#configure-the-xcode-project).
 
