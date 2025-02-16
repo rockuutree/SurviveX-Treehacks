@@ -21,7 +21,7 @@ struct MessageView: View {
       } else {
         VStack(alignment: message.type == .llamagenerated ? .leading : .trailing) {
           if message.type == .llamagenerated || message.type == .prompted {
-            Text(message.type == .llamagenerated ? "Llama" : "Prompt")
+            Text(message.type == .llamagenerated ? "Assistant" : "Prompt")
               .font(.caption)
               .foregroundColor(.secondary)
               .padding(message.type == .llamagenerated ? .trailing : .leading, 20)
