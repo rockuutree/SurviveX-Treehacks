@@ -148,31 +148,39 @@ struct ContentView: View {
       }
       .navigationBarItems(
         leading:
-          // Memory consumption utility.
-          Menu {
-            Section(header: Text("Memory")) {
-              Text("Used: \(resourceMonitor.usedMemory) Mb")
+          HStack {
+            // Memory consumption utility.
+            Menu {
+              Section(header: Text("Memory")) {
+                Text("Used: \(resourceMonitor.usedMemory) Mb")
+                  .font(.title3)
+                Text("Available: \(resourceMonitor.usedMemory) Mb")
+                  .font(.title3)
+              }
+            } label: {
+              Text("\(resourceMonitor.usedMemory) Mb")
                 .font(.title3)
-              Text("Available: \(resourceMonitor.usedMemory) Mb")
-                .font(.title3)
+                .foregroundStyle(.green)
             }
-          } label: {
-            Text("\(resourceMonitor.usedMemory) Mb")
-              .font(.title3)
-              .foregroundColor(.green)
-          }
-          .onAppear {
-            resourceMonitor.start()
-          }
-          .onDisappear {
-            resourceMonitor.stop()
+            .onAppear {
+              resourceMonitor.start()
+            }
+            .onDisappear {
+              resourceMonitor.stop()
+            }
+
+            // Interaction logs.
+            Button(action: { showingLogs = true }) {
+              Image(systemName: "list.bullet.rectangle")
+                .font(.system(size: 28))
+                .foregroundStyle(.green)
+            }
           },
         trailing:
-          // Interaction logs.
-          Button(action: { showingLogs = true }) {
-            Image(systemName: "list.bullet.rectangle")
+          Button(action: { self.messages.removeAll() }) {
+            Image(systemName: "clear")
               .font(.system(size: 28))
-              .foregroundColor(.green)
+              .foregroundStyle(.green)
           }
       )
       .sheet(isPresented: $showingLogs) {
@@ -299,9 +307,6 @@ struct ContentView: View {
 
       // Make prompt and send.
       do {
-        var tokens: [String] = []
-        var generatedText = ""
-
         // Rebuild chat history.
         var history =
           "<|begin_of_text|><|start_header_id|>system<|end_header_id|>You are an AI assistant that safely guides users through life-threatening emergency situation. Provide a single step of instruction between each user prompt.<|eot_id|>"
@@ -327,17 +332,14 @@ struct ContentView: View {
             if token == "<|eot_id|>" {
               // Possible race condition with full text not completely generated yet.
               // Speak the complete generated text.
-              speakText(generatedText)
+              DispatchQueue.main.async {
+                speakText(messages.last?.text ?? "")
+              }
             } else {
-              tokens.append(token.trimmingCharacters(in: .newlines))
-              if tokens.count > 2 {
-                let text = tokens.joined()
-                generatedText += text  // Accumulate generated text.
-                let count = tokens.count
-                tokens = []
+              DispatchQueue.main.async {
                 if var lastMessage = messages.last {
-                  lastMessage.text += text
-                  lastMessage.tokenCount += count
+                  lastMessage.text += token.trimmingCharacters(in: .newlines)
+                  lastMessage.tokenCount += 1
                   lastMessage.dateUpdated = Date()
                   messages[messages.count - 1] = lastMessage
                 }
