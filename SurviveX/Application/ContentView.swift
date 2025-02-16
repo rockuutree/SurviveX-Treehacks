@@ -39,6 +39,18 @@ struct ContentView: View {
     modelURL != nil && tokenizerURL != nil
   }
 
+  // Terra heartrate data.
+  private let heartRates: [Double] = [
+    68.18, 54.05, 44.77, 90.90, 60.00, 56.07, 73.17, 52.17, 56.60, 80.00, 55.04,
+    55.55, 92.30, 65.21, 86.95, 89.55,
+  ]
+  private let classifications: [Int] = [
+    0, -1, -1, 0, 0, -1, 0, -1, -1, 0, -1, -1, 0, 0, 0, 0,
+  ]
+  @State private var currentHeartRate: Double = 68.18
+  @State private var currentHeartRateIndex: Int = 0
+  let timer = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
+
   var body: some View {
     NavigationView {
       ZStack {
@@ -56,8 +68,24 @@ struct ContentView: View {
           }
 
           // Terra HR view.
-          HeartRateView()
-            .padding()
+          HStack(spacing: 20) {
+            // Static heart image
+            Image(systemName: "heart.fill")
+              .resizable()
+              .frame(width: 36, height: 36)
+              .foregroundColor(.red)
+
+            // Heart rate text that updates
+            Text("\(Int(currentHeartRate)) BPM")
+              .font(.system(size: 36, weight: .bold))
+          }
+          .onReceive(timer) { _ in
+            // Cycle to next heart rate
+            currentHeartRateIndex =
+              (currentHeartRateIndex + 1) % heartRates.count
+            currentHeartRate = heartRates[currentHeartRateIndex]
+          }
+          .padding()
 
           // Conversation history.
           MessageListView(messages: $messages)
@@ -331,7 +359,7 @@ struct ContentView: View {
 
         // Build prompt.
         let llama3_prompt =
-          "\(history)<|start_header_id|>user<|end_header_id|>\(text). What is the \(self.messages.count == 2 ? "first" : "next") step?<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
+          "\(history)<|start_header_id|>user<|end_header_id|>\(text). What is the \(self.messages.count == 2 ? "first" : "next") step?\(classifications[currentHeartRateIndex] < 0 ? " Also, my heart rate is lower than normal. Please reassure me." : "")<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
 
         try runnerHolder?.generate(llama3_prompt, sequenceLength: seq_len) {
           token in
