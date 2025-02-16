@@ -10,7 +10,6 @@ struct ContentView: View {
   @State private var showingLogs = false
   @State private var isGenerating = false
   @State private var shouldStopGenerating = false
-  @State private var shouldStopShowingToken = false
   @State private var isRecording = false
 
   // Model state.
@@ -235,7 +234,6 @@ struct ContentView: View {
 
     isGenerating = true
     shouldStopGenerating = false
-    shouldStopShowingToken = false
     let text = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
     let seq_len = 8192
 
@@ -327,11 +325,9 @@ struct ContentView: View {
           NSLog(">>> token={\(token)}")
           if token != llama3_prompt {
             if token == "<|eot_id|>" {
-              shouldStopShowingToken = true
-              // Speak the complete generated text
-              DispatchQueue.main.async {
-                speakText(generatedText)
-              }
+              // Possible race condition with full text not completely generated yet.
+              // Speak the complete generated text.
+              speakText(generatedText)
             } else {
               tokens.append(token.trimmingCharacters(in: .newlines))
               if tokens.count > 2 {
@@ -345,16 +341,6 @@ struct ContentView: View {
                   lastMessage.dateUpdated = Date()
                   messages[messages.count - 1] = lastMessage
                 }
-                //                DispatchQueue.main.async {
-                //                  var message = messages.removeLast()
-                //                  message.text += text
-                //                  message.tokenCount += count
-                //                  message.dateUpdated = Date()
-                //                  messages.append(message)
-                //                }
-              }
-              if shouldStopGenerating {
-                runnerHolder?.stop()
               }
             }
           }
