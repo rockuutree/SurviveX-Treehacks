@@ -8,11 +8,11 @@ struct HeartRateView: View {
     let timer = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
     
     var body: some View {
-        VStack(spacing: 20) {
+        HStack(spacing: 20) {
             // Static heart image
             Image(systemName: "heart.fill")
                 .resizable()
-                .frame(width: 100, height: 100)
+                .frame(width: 36, height: 36)
                 .foregroundColor(.red)
             
             // Heart rate text that updates

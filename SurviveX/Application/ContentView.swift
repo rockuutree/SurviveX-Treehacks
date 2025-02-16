@@ -76,26 +76,50 @@ struct ContentView: View {
             }
 
           // Input section.
-          HStack(spacing: 20) {
-            // Input view.
-            TextField(placeholder, text: $prompt, axis: .vertical)
-              .font(.system(size: 24, weight: .bold))  // Bold black text
-              .tint(.black)
-              .padding(16)  // More padding
-              .foregroundColor(.black)
-              .background(Color.white.opacity(0.8))
-              .cornerRadius(30)  // Larger corner radius
-              .lineLimit(1...10)
-              .overlay(
-                RoundedRectangle(cornerRadius: 30)
-                  .stroke(
-                    validModelAndTokenizer ? Color.green : Color.gray,
-                    lineWidth: 2)  // Green border
+          VStack {
+            HStack(spacing: 20) {
+              // Input view.
+              TextField(placeholder, text: $prompt, axis: .vertical)
+                .font(.system(size: 24, weight: .bold))  // Bold black text
+                .tint(.black)
+                .padding(16)  // More padding
+                .foregroundColor(.black)
+                .background(Color.white.opacity(0.8))
+                .cornerRadius(30)  // Larger corner radius
+                .lineLimit(1...10)
+                .overlay(
+                  RoundedRectangle(cornerRadius: 30)
+                    .stroke(
+                      validModelAndTokenizer ? Color.green : Color.gray,
+                      lineWidth: 2)  // Green border
+                )
+                .disabled(!validModelAndTokenizer)
+                .focused($textFieldFocused)
+                .onAppear { textFieldFocused = false }
+                .frame(maxWidth: .infinity)
+              // Generate/Stop Button
+              Button(action: isGenerating ? stop : generate) {
+                Image(
+                  systemName: isGenerating
+                    ? "stop.circle" : "arrowshape.up.circle.fill"
+                )
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 56, height: 56)  // Larger button
+                .foregroundStyle(.green)
+                .background(
+                  Circle()
+                    .fill(Color.white.opacity(0.8))
+                    .frame(width: 64, height: 64)
+                )
+              }
+              .disabled(
+                isGenerating
+                  ? shouldStopGenerating
+                  : (!validModelAndTokenizer || prompt.isEmpty)
               )
-              .disabled(!validModelAndTokenizer)
-              .focused($textFieldFocused)
-              .onAppear { textFieldFocused = false }
-              .frame(maxWidth: .infinity)
+              .padding(8)
+            }
 
             // Voice Recording Button (generate on stop).
             Button {
@@ -103,42 +127,21 @@ struct ContentView: View {
                 toggleRecording()
               }
             } label: {
-              Image(systemName: !isRecording ? "waveform" : "stop.circle.fill")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 56, height: 56)  // Larger button
-                .foregroundStyle(isRecording ? .red : .green)
-                .background(
-                  Circle()
-                    .fill(Color.white.opacity(0.8))
-                    .frame(width: 64, height: 64)
-                )
-            }
-            .disabled(isGenerating)
-            .buttonStyle(.borderless)
-            .padding(8)
-
-            // Generate/Stop Button
-            Button(action: isGenerating ? stop : generate) {
               Image(
-                systemName: isGenerating
-                  ? "stop.circle" : "arrowshape.up.circle.fill"
+                systemName: !isRecording ? "waveform" : "stop.circle.fill"
               )
               .resizable()
               .aspectRatio(contentMode: .fit)
               .frame(width: 56, height: 56)  // Larger button
-              .foregroundStyle(.green)
+              .foregroundStyle(isRecording ? .red : .green)
               .background(
                 Circle()
                   .fill(Color.white.opacity(0.8))
                   .frame(width: 64, height: 64)
               )
             }
-            .disabled(
-              isGenerating
-                ? shouldStopGenerating
-                : (!validModelAndTokenizer || prompt.isEmpty)
-            )
+            .disabled(isGenerating)
+            .buttonStyle(.borderless)
             .padding(8)
           }
           .padding([.leading, .trailing], 32)  // Wider horizontal padding
