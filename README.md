@@ -1,7 +1,5 @@
 # SurviveX
 
-# SurviveX
-
 ## The Problem
 
 Imagine you're _lost and alone_ in a remote environment, you have no internet access to call for help or look up survival knowledge and time is **running out**. 
