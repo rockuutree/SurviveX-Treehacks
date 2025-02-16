@@ -4,29 +4,29 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ContentView: View {
+  // UI and application state.
   @State private var prompt = ""
   @State private var messages: [Message] = []
   @State private var showingLogs = false
-  @State private var pickerType: PickerType?
   @State private var isGenerating = false
   @State private var shouldStopGenerating = false
-  @State private var shouldStopShowingToken = false
   @State private var isRecording = false
 
+  // Model state.
   private let runnerQueue = DispatchQueue(label: "org.pytorch.executorch.llama")
   @State private var runnerHolder: Runner?
   @StateObject private var resourceMonitor = ResourceMonitor()
   @StateObject private var logManager = LogManager()
 
-  // Speech components
+  // Speech components.
   private let speechRecognitionService = SpeechRecognitionService()
   private let speechSynthesizer = AVSpeechSynthesizer()
 
+  // Input field state.
   @FocusState private var textFieldFocused: Bool
 
-  enum PickerType {
-    case model
-    case tokenizer
+  private var placeholder: String {
+    validModelAndTokenizer ? "What is your situation?" : ""
   }
 
   // Define resource URLs for the model.
@@ -39,19 +39,15 @@ struct ContentView: View {
     modelURL != nil && tokenizerURL != nil
   }
 
-  private var placeholder: String {
-    validModelAndTokenizer ? "What is your situation?" : ""
-  }
-
   var body: some View {
     NavigationView {
       ZStack {
-        // Background color
+        // Background color.
         Color.green.opacity(0.2)
           .ignoresSafeArea()
 
         VStack {
-          // Placeholder text when no messages
+          // Placeholder text when no messages.
           if messages.isEmpty {
             Text("Ask for help")
               .font(.system(size: 36, weight: .bold))
@@ -59,9 +55,11 @@ struct ContentView: View {
               .padding(.top, 40)
           }
 
+          // Terra HR view.
           HeartRateView()
             .padding()
 
+          // Conversation history.
           MessageListView(messages: $messages)
             .font(.system(size: 24))
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -77,67 +75,73 @@ struct ContentView: View {
               textFieldFocused = false
             }
 
-          HStack(spacing: 20) {  // Increased spacing between elements
-            TextField(placeholder, text: $prompt, axis: .vertical)
-              .font(.system(size: 24, weight: .bold))  // Bold black text
-              .tint(.black)
-              .padding(16)  // More padding
-              .foregroundColor(.black)
-              .background(Color.white.opacity(0.8))
-              .cornerRadius(30)  // Larger corner radius
-              .lineLimit(1...10)
-              .overlay(
-                RoundedRectangle(cornerRadius: 30)
-                  .stroke(
-                    validModelAndTokenizer ? Color.green : Color.gray,
-                    lineWidth: 2)  // Green border
-              )
-              .disabled(!validModelAndTokenizer)
-              .focused($textFieldFocused)
-              .onAppear { textFieldFocused = false }
-              .frame(maxWidth: .infinity)
-
-            // Voice Recording Button
-            Button {
-              withAnimation {
-                toggleRecording()
-              }
-            } label: {
-              Image(systemName: !isRecording ? "waveform" : "stop.circle.fill")
+          // Input section.
+          VStack {
+            HStack(spacing: 20) {
+              // Input view.
+              TextField(placeholder, text: $prompt, axis: .vertical)
+                .font(.system(size: 24, weight: .bold))  // Bold black text
+                .tint(.black)
+                .padding(16)  // More padding
+                .foregroundColor(.black)
+                .background(Color.white.opacity(0.8))
+                .cornerRadius(30)  // Larger corner radius
+                .lineLimit(1...10)
+                .overlay(
+                  RoundedRectangle(cornerRadius: 30)
+                    .stroke(
+                      validModelAndTokenizer ? Color.green : Color.gray,
+                      lineWidth: 2)  // Green border
+                )
+                .disabled(!validModelAndTokenizer)
+                .focused($textFieldFocused)
+                .onAppear { textFieldFocused = false }
+                .frame(maxWidth: .infinity)
+              // Generate/Stop Button
+              Button(action: isGenerating ? stop : generate) {
+                Image(
+                  systemName: isGenerating
+                    ? "stop.circle" : "arrowshape.up.circle.fill"
+                )
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 56, height: 56)  // Larger button
-                .foregroundStyle(isRecording ? .red : .green)
+                .foregroundStyle(.green)
                 .background(
                   Circle()
                     .fill(Color.white.opacity(0.8))
                     .frame(width: 64, height: 64)
                 )
+              }
+              .disabled(
+                isGenerating
+                  ? shouldStopGenerating
+                  : (!validModelAndTokenizer || prompt.isEmpty)
+              )
+              .padding(8)
             }
-            .buttonStyle(.borderless)
-            .padding(8)
 
-            // Generate/Stop Button
-            Button(action: isGenerating ? stop : generate) {
+            // Voice Recording Button (generate on stop).
+            Button {
+              withAnimation {
+                toggleRecording()
+              }
+            } label: {
               Image(
-                systemName: isGenerating
-                  ? "stop.circle" : "arrowshape.up.circle.fill"
+                systemName: !isRecording ? "waveform" : "stop.circle.fill"
               )
               .resizable()
               .aspectRatio(contentMode: .fit)
               .frame(width: 56, height: 56)  // Larger button
-              .foregroundStyle(.green)
+              .foregroundStyle(isRecording ? .red : .green)
               .background(
                 Circle()
                   .fill(Color.white.opacity(0.8))
                   .frame(width: 64, height: 64)
               )
             }
-            .disabled(
-              isGenerating
-                ? shouldStopGenerating
-                : (!validModelAndTokenizer || prompt.isEmpty)
-            )
+            .disabled(isGenerating)
+            .buttonStyle(.borderless)
             .padding(8)
           }
           .padding([.leading, .trailing], 32)  // Wider horizontal padding
@@ -147,29 +151,39 @@ struct ContentView: View {
       }
       .navigationBarItems(
         leading:
-          Menu {
-            Section(header: Text("Memory")) {
-              Text("Used: \(resourceMonitor.usedMemory) Mb")
+          HStack {
+            // Memory consumption utility.
+            Menu {
+              Section(header: Text("Memory")) {
+                Text("Used: \(resourceMonitor.usedMemory) Mb")
+                  .font(.title3)
+                Text("Available: \(resourceMonitor.usedMemory) Mb")
+                  .font(.title3)
+              }
+            } label: {
+              Text("\(resourceMonitor.usedMemory) Mb")
                 .font(.title3)
-              Text("Available: \(resourceMonitor.usedMemory) Mb")
-                .font(.title3)
+                .foregroundStyle(.green)
             }
-          } label: {
-            Text("\(resourceMonitor.usedMemory) Mb")
-              .font(.title3)
-              .foregroundColor(.green)
-          }
-          .onAppear {
-            resourceMonitor.start()
-          }
-          .onDisappear {
-            resourceMonitor.stop()
+            .onAppear {
+              resourceMonitor.start()
+            }
+            .onDisappear {
+              resourceMonitor.stop()
+            }
+
+            // Interaction logs.
+            Button(action: { showingLogs = true }) {
+              Image(systemName: "list.bullet.rectangle")
+                .font(.system(size: 28))
+                .foregroundStyle(.green)
+            }
           },
         trailing:
-          Button(action: { showingLogs = true }) {
-            Image(systemName: "list.bullet.rectangle")
+          Button(action: { self.messages.removeAll() }) {
+            Image(systemName: "clear")
               .font(.system(size: 28))
-              .foregroundColor(.green)
+              .foregroundStyle(.green)
           }
       )
       .sheet(isPresented: $showingLogs) {
@@ -181,7 +195,7 @@ struct ContentView: View {
     .navigationViewStyle(StackNavigationViewStyle())
   }
 
-  //    Speech to text
+  // Speech to text.
   func toggleRecording() {
     isRecording.toggle()
 
@@ -199,11 +213,14 @@ struct ContentView: View {
       let transcribedText = speechRecognitionService.getCurrentTranscription()
       if !transcribedText.isEmpty {
         self.prompt = transcribedText
+
+        // Send off prompt once collected.
+        generate()
       }
     }
   }
 
-  // Text-to-Speech Function
+  // Text-to-Speech Function.
   private func speakText(_ text: String) {
     let utterance = AVSpeechUtterance(string: text)
     utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
@@ -219,6 +236,7 @@ struct ContentView: View {
     speechSynthesizer.speak(utterance)
   }
 
+  // Send query to model.
   private func generate() {
     // Shortcut exit if there is no prompt or no model.
     guard !prompt.isEmpty else { return }
@@ -227,9 +245,8 @@ struct ContentView: View {
 
     isGenerating = true
     shouldStopGenerating = false
-    shouldStopShowingToken = false
     let text = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
-    let seq_len = 768  // text: 256, vision: 768
+    let seq_len = 8192
 
     prompt = ""
     hideKeyboard()
@@ -248,7 +265,7 @@ struct ContentView: View {
       runnerHolder =
         runnerHolder ?? Runner(modelPath: modelPath, tokenizerPath: tokenPath)
 
-      // Generate response.
+      // Load model.
       guard !shouldStopGenerating else { return }
       if let runner = runnerHolder, !runner.isLoaded() {
         var error: Error?
@@ -291,40 +308,61 @@ struct ContentView: View {
         return
       }
 
+      // Make prompt and send.
       do {
-        var tokens: [String] = []
-        var generatedText = ""
+        // Rebuild chat history.
+        var history =
+          "<|begin_of_text|><|start_header_id|>system<|end_header_id|>You are an AI assistant that safely guides users through life-threatening emergency situation. Provide a single step of instruction between each user prompt.<|eot_id|>"
+        for message in messages {
+          // Skip info messages.
+          if message.type == .info {
+            continue
+          }
 
+          // Skip empty messages.
+          if message.text.isEmpty {
+            continue
+          }
+
+          // Update history with each message.
+          history +=
+            "<|start_header_id|>\(message.type == .prompted ? "user" : "assistant")<|end_header_id|>\(message.text)<|eot_id|>"
+        }
+
+        // Build prompt.
         let llama3_prompt =
-          "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\(text)<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
+          "\(history)<|start_header_id|>user<|end_header_id|>\(text). What is the \(self.messages.count == 2 ? "first" : "next") step?<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
 
         try runnerHolder?.generate(llama3_prompt, sequenceLength: seq_len) {
           token in
+          // Stop generating when marked.
+          if shouldStopGenerating {
+            runnerHolder?.stop()
+          }
+
+          // Otherwise, process.
           NSLog(">>> token={\(token)}")
           if token != llama3_prompt {
             if token == "<|eot_id|>" {
-              shouldStopShowingToken = true
-              // Speak the complete generated text
+              // Possible race condition with full text not completely generated yet.
+              // Speak the complete generated text.
               DispatchQueue.main.async {
-                speakText(generatedText)
+                speakText(messages.last?.text ?? "")
               }
             } else {
-              tokens.append(token.trimmingCharacters(in: .newlines))
-              if tokens.count > 2 {
-                let text = tokens.joined()
-                generatedText += text  // Accumulate generated text
-                let count = tokens.count
-                tokens = []
-                DispatchQueue.main.async {
-                  var message = messages.removeLast()
-                  message.text += text
-                  message.tokenCount += count
-                  message.dateUpdated = Date()
-                  messages.append(message)
+              DispatchQueue.main.async {
+                if var lastMessage = messages.last {
+                  // Extend message.
+                  lastMessage.text += token
+
+                  // Remove newlines and blank from the start of the text.
+                  lastMessage.text = String(
+                    lastMessage.text.trimmingPrefix(while: \.isNewline))
+
+                  lastMessage.tokenCount += 1
+                  lastMessage.dateUpdated = Date()
+                  messages[messages.count - 1] = lastMessage
                 }
-              }
-              if shouldStopGenerating {
-                runnerHolder?.stop()
               }
             }
           }

@@ -11,7 +11,6 @@ import UIKit
 enum MessageType {
   case prompted
   case llamagenerated
-  case llavagenerated
   case info
 }
 
