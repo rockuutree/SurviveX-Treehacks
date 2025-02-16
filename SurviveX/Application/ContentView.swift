@@ -316,6 +316,11 @@ struct ContentView: View {
             continue
           }
 
+          // Skip empty messages.
+          if message.text.isEmpty {
+            continue
+          }
+
           // Update history with each message.
           history +=
             "<|start_header_id|>\(message.type == .prompted ? "user" : "assistant")<|end_header_id|>\(message.text)<|eot_id|>"
@@ -323,10 +328,16 @@ struct ContentView: View {
 
         // Build prompt.
         let llama3_prompt =
-          "\(history)<|start_header_id|>user<|end_header_id|>\(text)<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
+          "\(history)<|start_header_id|>user<|end_header_id|>\(text). What is the \(self.messages.count == 2 ? "first" : "next") step?<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
 
         try runnerHolder?.generate(llama3_prompt, sequenceLength: seq_len) {
           token in
+          // Stop generating when marked.
+          if shouldStopGenerating {
+            runnerHolder?.stop()
+          }
+
+          // Otherwise, process.
           NSLog(">>> token={\(token)}")
           if token != llama3_prompt {
             if token == "<|eot_id|>" {
@@ -338,7 +349,13 @@ struct ContentView: View {
             } else {
               DispatchQueue.main.async {
                 if var lastMessage = messages.last {
-                  lastMessage.text += token.trimmingCharacters(in: .newlines)
+                  // Extend message.
+                  lastMessage.text += token
+
+                  // Remove newlines and blank from the start of the text.
+                  lastMessage.text = String(
+                    lastMessage.text.trimmingPrefix(while: \.isNewline))
+
                   lastMessage.tokenCount += 1
                   lastMessage.dateUpdated = Date()
                   messages[messages.count - 1] = lastMessage
