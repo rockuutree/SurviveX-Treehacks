@@ -16,8 +16,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "032C016E2AC228E6002955E1"
                BuildableName = "SurviveX.app"
-               BlueprintName = "SurviveX"
-               ReferencedContainer = "container:SurviveX.xcodeproj">
+               BlueprintName = "SurviveXFinal"
+               ReferencedContainer = "container:SurviveXFinal.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,8 +45,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "032C016E2AC228E6002955E1"
             BuildableName = "SurviveX.app"
-            BlueprintName = "SurviveX"
-            ReferencedContainer = "container:SurviveX.xcodeproj">
+            BlueprintName = "SurviveXFinal"
+            ReferencedContainer = "container:SurviveXFinal.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -61,8 +61,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "032C016E2AC228E6002955E1"
             BuildableName = "SurviveX.app"
-            BlueprintName = "SurviveX"
-            ReferencedContainer = "container:SurviveX.xcodeproj">
+            BlueprintName = "SurviveXFinal"
+            ReferencedContainer = "container:SurviveXFinal.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>
