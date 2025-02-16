@@ -55,7 +55,7 @@
 		03DDA0FB2BD6368100D234B3 /* base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 03DDA0FA2BD6368100D234B3 /* base64.h */; };
 		941FF2D32D61A9220049CB32 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 941FF2D22D61A9220049CB32 /* SpeechRecognitionService.swift */; };
 		941FF2D52D61B6810049CB32 /* irregular_418.csv in Resources */ = {isa = PBXBuildFile; fileRef = 941FF2D42D61B6810049CB32 /* irregular_418.csv */; };
-		941FF2D72D61B78A0049CB32 /* HeartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 941FF2D62D61B7870049CB32 /* HeartView.swift */; };
+		941FF2D72D61B78A0049CB32 /* HeartRateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 941FF2D62D61B7870049CB32 /* HeartRateView.swift */; };
 		9FA745922D61504800DC5823 /* llama3_2.pte in Resources */ = {isa = PBXBuildFile; fileRef = 9FA745902D61504800DC5823 /* llama3_2.pte */; };
 		9FA745932D61504800DC5823 /* tokenizer.model in Resources */ = {isa = PBXBuildFile; fileRef = 9FA745912D61504800DC5823 /* tokenizer.model */; };
 /* End PBXBuildFile section */
@@ -123,7 +123,7 @@
 		03DDA0FA2BD6368100D234B3 /* base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = base64.h; path = ../../../../extension/llm/tokenizer/base64.h; sourceTree = "<group>"; };
 		941FF2D22D61A9220049CB32 /* SpeechRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionService.swift; sourceTree = "<group>"; };
 		941FF2D42D61B6810049CB32 /* irregular_418.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = irregular_418.csv; sourceTree = "<group>"; };
-		941FF2D62D61B7870049CB32 /* HeartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartView.swift; sourceTree = "<group>"; };
+		941FF2D62D61B7870049CB32 /* HeartRateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartRateView.swift; sourceTree = "<group>"; };
 		9FA745902D61504800DC5823 /* llama3_2.pte */ = {isa = PBXFileReference; lastKnownFileType = file; path = llama3_2.pte; sourceTree = "<group>"; };
 		9FA745912D61504800DC5823 /* tokenizer.model */ = {isa = PBXFileReference; lastKnownFileType = text; path = tokenizer.model; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -175,7 +175,7 @@
 			isa = PBXGroup;
 			children = (
 				941FF2D42D61B6810049CB32 /* irregular_418.csv */,
-				941FF2D62D61B7870049CB32 /* HeartView.swift */,
+				941FF2D62D61B7870049CB32 /* HeartRateView.swift */,
 				0324D6802BAACB6900DEF36F /* App.swift */,
 				0324D6812BAACB6900DEF36F /* ContentView.swift */,
 				941FF2D22D61A9220049CB32 /* SpeechRecognitionService.swift */,
@@ -481,7 +481,7 @@
 				0324D6932BAACB6900DEF36F /* ResourceMonitor.swift in Sources */,
 				941FF2D32D61A9220049CB32 /* SpeechRecognitionService.swift in Sources */,
 				0324D68D2BAACB6900DEF36F /* LogManager.swift in Sources */,
-				941FF2D72D61B78A0049CB32 /* HeartView.swift in Sources */,
+				941FF2D72D61B78A0049CB32 /* HeartRateView.swift in Sources */,
 				0324D68E2BAACB6900DEF36F /* LogView.swift in Sources */,
 				0324D68F2BAACB6900DEF36F /* Message.swift in Sources */,
 				0324D68C2BAACB6900DEF36F /* ContentView.swift in Sources */,

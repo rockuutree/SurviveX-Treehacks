@@ -56,8 +56,14 @@ struct ContentView: View {
                   .foregroundColor(.black)
                   .padding(.top, 40)
               }
+                
+                HeartRateView()
+                        .padding() 
+                
+                
               
               MessageListView(messages: $messages)
+                .font(.system(size: 24))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .simultaneousGesture(
                   DragGesture().onChanged { value in
@@ -128,7 +134,7 @@ struct ContentView: View {
               .padding([.leading, .trailing], 32)  // Wider horizontal padding
               .padding(.bottom, 20)
             }
-            .frame(maxWidth: 1000)  // Increased maximum width
+            .frame(maxWidth: .infinity)  // Increased maximum width
           }
           .navigationBarItems(
             leading:
