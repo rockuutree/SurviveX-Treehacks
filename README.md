@@ -20,6 +20,7 @@ Whether you need to treat an injury, start a fire, fix up your broken car on the
 
 ## How we built it
 - We used **ExecuTorch** for on device inference for our Edge AI solution.
+- **Note :** Here is a link to our [Google Drive](https://drive.google.com/drive/folders/1fUfmI3E7uDgLrk0CRkHtEo1PfuL4Kqj8?usp=sharing) containing the `.pte` files generated to build and run our model.
 - The model we decided on was Meta's **Llama-3.2-1B-Instruct** since it was small and the most practical run on device.
 - To fine tune our model we had to use **torchtune** - a PyTorch library for fine tuning our Llama Model on an instance of Nvidia's H-100 using Brev.dev. 
 - We used **SwiftUI** for the interface on VisionOS and Swift for implementing the on device Llama model. 
