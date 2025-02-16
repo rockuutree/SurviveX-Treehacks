@@ -50,6 +50,7 @@ struct ContentView: View {
   @State private var currentHeartRate: Double = 68.18
   @State private var currentHeartRateIndex: Int = 0
   let timer = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
+  @State private var useHeartRateData: Bool = false
 
   var body: some View {
     NavigationView {
@@ -69,11 +70,13 @@ struct ContentView: View {
 
           // Terra HR view.
           HStack(spacing: 20) {
-            // Static heart image
-            Image(systemName: "heart.fill")
-              .resizable()
-              .frame(width: 36, height: 36)
-              .foregroundColor(.red)
+            // Toggle button to use HR.
+            Button(action: { useHeartRateData = !useHeartRateData }) {
+              Image(systemName: "heart.fill")
+                .resizable()
+                .frame(width: 36, height: 36)
+                .foregroundColor(useHeartRateData ? .red : .gray)
+            }
 
             // Heart rate text that updates
             Text("\(Int(currentHeartRate)) BPM")
@@ -359,7 +362,7 @@ struct ContentView: View {
 
         // Build prompt.
         let llama3_prompt =
-          "\(history)<|start_header_id|>user<|end_header_id|>\(text). What is the \(self.messages.count == 2 ? "first" : "next") step?\(classifications[currentHeartRateIndex] < 0 ? " Also, my heart rate is lower than normal. Please reassure me." : "")<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
+          "\(history)<|start_header_id|>user<|end_header_id|>\(text). What is the \(self.messages.count == 2 ? "first" : "next") step?\(classifications[currentHeartRateIndex] < 0 && useHeartRateData ? " Also, my heart rate is lower than normal. Please reassure me." : "")<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
 
         try runnerHolder?.generate(llama3_prompt, sequenceLength: seq_len) {
           token in
