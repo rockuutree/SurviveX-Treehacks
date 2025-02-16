@@ -4,29 +4,30 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ContentView: View {
+  // UI and application state.
   @State private var prompt = ""
   @State private var messages: [Message] = []
   @State private var showingLogs = false
-  @State private var pickerType: PickerType?
   @State private var isGenerating = false
   @State private var shouldStopGenerating = false
   @State private var shouldStopShowingToken = false
   @State private var isRecording = false
 
+  // Model state.
   private let runnerQueue = DispatchQueue(label: "org.pytorch.executorch.llama")
   @State private var runnerHolder: Runner?
   @StateObject private var resourceMonitor = ResourceMonitor()
   @StateObject private var logManager = LogManager()
 
-  // Speech components
+  // Speech components.
   private let speechRecognitionService = SpeechRecognitionService()
   private let speechSynthesizer = AVSpeechSynthesizer()
 
+  // Input field state.
   @FocusState private var textFieldFocused: Bool
 
-  enum PickerType {
-    case model
-    case tokenizer
+  private var placeholder: String {
+    validModelAndTokenizer ? "What is your situation?" : ""
   }
 
   // Define resource URLs for the model.
@@ -39,19 +40,15 @@ struct ContentView: View {
     modelURL != nil && tokenizerURL != nil
   }
 
-  private var placeholder: String {
-    validModelAndTokenizer ? "What is your situation?" : ""
-  }
-
   var body: some View {
     NavigationView {
       ZStack {
-        // Background color
+        // Background color.
         Color.green.opacity(0.2)
           .ignoresSafeArea()
 
         VStack {
-          // Placeholder text when no messages
+          // Placeholder text when no messages.
           if messages.isEmpty {
             Text("Ask for help")
               .font(.system(size: 36, weight: .bold))
@@ -59,9 +56,11 @@ struct ContentView: View {
               .padding(.top, 40)
           }
 
+          // Terra HR view.
           HeartRateView()
             .padding()
 
+          // Conversation history.
           MessageListView(messages: $messages)
             .font(.system(size: 24))
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -77,7 +76,9 @@ struct ContentView: View {
               textFieldFocused = false
             }
 
-          HStack(spacing: 20) {  // Increased spacing between elements
+          // Input section.
+          HStack(spacing: 20) {
+            // Input view.
             TextField(placeholder, text: $prompt, axis: .vertical)
               .font(.system(size: 24, weight: .bold))  // Bold black text
               .tint(.black)
@@ -97,7 +98,7 @@ struct ContentView: View {
               .onAppear { textFieldFocused = false }
               .frame(maxWidth: .infinity)
 
-            // Voice Recording Button
+            // Voice Recording Button (generate on stop).
             Button {
               withAnimation {
                 toggleRecording()
@@ -114,6 +115,7 @@ struct ContentView: View {
                     .frame(width: 64, height: 64)
                 )
             }
+            .disabled(isGenerating)
             .buttonStyle(.borderless)
             .padding(8)
 
@@ -147,6 +149,7 @@ struct ContentView: View {
       }
       .navigationBarItems(
         leading:
+          // Memory consumption utility.
           Menu {
             Section(header: Text("Memory")) {
               Text("Used: \(resourceMonitor.usedMemory) Mb")
@@ -166,6 +169,7 @@ struct ContentView: View {
             resourceMonitor.stop()
           },
         trailing:
+          // Interaction logs.
           Button(action: { showingLogs = true }) {
             Image(systemName: "list.bullet.rectangle")
               .font(.system(size: 28))
@@ -181,7 +185,7 @@ struct ContentView: View {
     .navigationViewStyle(StackNavigationViewStyle())
   }
 
-  //    Speech to text
+  // Speech to text.
   func toggleRecording() {
     isRecording.toggle()
 
@@ -199,11 +203,14 @@ struct ContentView: View {
       let transcribedText = speechRecognitionService.getCurrentTranscription()
       if !transcribedText.isEmpty {
         self.prompt = transcribedText
+
+        // Send off prompt once collected.
+        generate()
       }
     }
   }
 
-  // Text-to-Speech Function
+  // Text-to-Speech Function.
   private func speakText(_ text: String) {
     let utterance = AVSpeechUtterance(string: text)
     utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
@@ -219,6 +226,7 @@ struct ContentView: View {
     speechSynthesizer.speak(utterance)
   }
 
+  // Send query to model.
   private func generate() {
     // Shortcut exit if there is no prompt or no model.
     guard !prompt.isEmpty else { return }
@@ -229,7 +237,7 @@ struct ContentView: View {
     shouldStopGenerating = false
     shouldStopShowingToken = false
     let text = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
-    let seq_len = 768  // text: 256, vision: 768
+    let seq_len = 8192
 
     prompt = ""
     hideKeyboard()
@@ -248,7 +256,7 @@ struct ContentView: View {
       runnerHolder =
         runnerHolder ?? Runner(modelPath: modelPath, tokenizerPath: tokenPath)
 
-      // Generate response.
+      // Load model.
       guard !shouldStopGenerating else { return }
       if let runner = runnerHolder, !runner.isLoaded() {
         var error: Error?
@@ -291,12 +299,28 @@ struct ContentView: View {
         return
       }
 
+      // Make prompt and send.
       do {
         var tokens: [String] = []
         var generatedText = ""
 
+        // Rebuild chat history.
+        var history =
+          "<|begin_of_text|><|start_header_id|>system<|end_header_id|>You are an AI assistant that safely guides users through life-threatening emergency situation. Provide a single step of instruction between each user prompt.<|eot_id|>"
+        for message in messages {
+          // Skip info messages.
+          if message.type == .info {
+            continue
+          }
+
+          // Update history with each message.
+          history +=
+            "<|start_header_id|>\(message.type == .prompted ? "user" : "assistant")<|end_header_id|>\(message.text)<|eot_id|>"
+        }
+
+        // Build prompt.
         let llama3_prompt =
-          "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\(text)<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
+          "\(history)<|start_header_id|>user<|end_header_id|>\(text)<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
 
         try runnerHolder?.generate(llama3_prompt, sequenceLength: seq_len) {
           token in
@@ -312,16 +336,22 @@ struct ContentView: View {
               tokens.append(token.trimmingCharacters(in: .newlines))
               if tokens.count > 2 {
                 let text = tokens.joined()
-                generatedText += text  // Accumulate generated text
+                generatedText += text  // Accumulate generated text.
                 let count = tokens.count
                 tokens = []
-                DispatchQueue.main.async {
-                  var message = messages.removeLast()
-                  message.text += text
-                  message.tokenCount += count
-                  message.dateUpdated = Date()
-                  messages.append(message)
+                if var lastMessage = messages.last {
+                  lastMessage.text += text
+                  lastMessage.tokenCount += count
+                  lastMessage.dateUpdated = Date()
+                  messages[messages.count - 1] = lastMessage
                 }
+                //                DispatchQueue.main.async {
+                //                  var message = messages.removeLast()
+                //                  message.text += text
+                //                  message.tokenCount += count
+                //                  message.dateUpdated = Date()
+                //                  messages.append(message)
+                //                }
               }
               if shouldStopGenerating {
                 runnerHolder?.stop()
