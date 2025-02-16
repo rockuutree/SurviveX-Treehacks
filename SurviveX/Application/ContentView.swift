@@ -78,11 +78,6 @@ struct ContentView: View {
   @StateObject private var resourceMonitor = ResourceMonitor()
   @StateObject private var logManager = LogManager()
 
-  @State private var isImagePickerPresented = false
-  @State private var selectedImage: UIImage?
-  @State private var imagePickerSourceType: UIImagePickerController.SourceType =
-    .photoLibrary
-
   @State private var showingSettings = false
   @FocusState private var textFieldFocused: Bool
 
@@ -91,31 +86,19 @@ struct ContentView: View {
     case tokenizer
   }
 
+  // Define resource URLs for the model.
+  private let modelURL = Bundle.main.url(
+    forResource: "llama3_2", withExtension: "pte")
+  private let tokenizerURL = Bundle.main.url(
+    forResource: "tokenizer", withExtension: "model")
+
+  private var validModelAndTokenizer: Bool {
+    modelURL != nil && tokenizerURL != nil
+  }
+
   private var placeholder: String {
-    resourceManager.isModelValid
-      ? resourceManager.isTokenizerValid
-        ? "Prompt..." : "Select Tokenizer..." : "Select Model..."
-  }
-
-  private var title: String {
-    resourceManager.isModelValid
-      ? resourceManager.isTokenizerValid
-        ? resourceManager.modelName : "Select Tokenizer..."
-      : "Select Model..."
-  }
-
-  private var modelTitle: String {
-    resourceManager.isModelValid
-      ? resourceManager.modelName : "Select Model..."
-  }
-
-  private var tokenizerTitle: String {
-    resourceManager.isTokenizerValid
-      ? resourceManager.tokenizerName : "Select Tokenizer..."
-  }
-
-  private var isInputEnabled: Bool {
-    resourceManager.isModelValid && resourceManager.isTokenizerValid
+    validModelAndTokenizer
+      ? "What is your situation?" : ""
   }
 
   var body: some View {
@@ -145,10 +128,10 @@ struct ContentView: View {
             .overlay(
               RoundedRectangle(cornerRadius: 20)
                 .stroke(
-                  isInputEnabled ? Color.blue : Color.gray,
+                  validModelAndTokenizer ? Color.blue : Color.gray,
                   lineWidth: 1)
             )
-            .disabled(!isInputEnabled)
+            .disabled(!validModelAndTokenizer)
             .focused($textFieldFocused)
             .onAppear { textFieldFocused = false }
             .onTapGesture {
@@ -167,11 +150,10 @@ struct ContentView: View {
           .disabled(
             isGenerating
               ? shouldStopGenerating
-              : (!isInputEnabled || prompt.isEmpty))
+            : (!validModelAndTokenizer || prompt.isEmpty))
         }
         .padding([.leading, .trailing, .bottom], 10)
       }
-      .navigationBarTitle(title, displayMode: .inline)
       .navigationBarItems(
         leading:
           Menu {
@@ -198,133 +180,73 @@ struct ContentView: View {
           LogView(logManager: logManager)
         }
       }
-      .onAppear {
-        do {
-          try resourceManager.createDirectoriesIfNeeded()
-        } catch {
-          withAnimation {
-            messages.append(
-              Message(
-                type: .info,
-                text:
-                  "Error creating content directories: \(error.localizedDescription)"
-              ))
-          }
-        }
-      }
     }
     .navigationViewStyle(StackNavigationViewStyle())
   }
 
-  private func addSelectedImageMessage() {
-    if let selectedImage {
-      messages.append(Message(image: selectedImage))
-    }
-  }
-
   private func generate() {
+    // Shortcut exit if there is no prompt or no model.
     guard !prompt.isEmpty else { return }
+    guard let modelPath = modelURL?.path() else { return }
+    guard let tokenPath = tokenizerURL?.path() else { return }
+
     isGenerating = true
     shouldStopGenerating = false
     shouldStopShowingToken = false
     let text = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
-    let seq_len = 768 // text: 256, vision: 768
-    let modelPath = resourceManager.modelPath
-    let tokenizerPath = resourceManager.tokenizerPath
-    let useLlama = modelPath.lowercased().contains("llama")
+    let seq_len = 768  // text: 256, vision: 768
 
     prompt = ""
     hideKeyboard()
     showingSettings = false
 
     messages.append(Message(text: text))
-    messages.append(
-      Message(type: useLlama ? .llamagenerated : .llavagenerated))
+    messages.append(Message(type: .llamagenerated))
 
     runnerQueue.async {
       defer {
         DispatchQueue.main.async {
           isGenerating = false
-          selectedImage = nil
         }
       }
 
-      if useLlama {
-        runnerHolder.runner =
-          runnerHolder.runner
-          ?? Runner(
-            modelPath: modelPath, tokenizerPath: tokenizerPath)
-      } else {
-        runnerHolder.llavaRunner =
-          runnerHolder.llavaRunner
-          ?? LLaVARunner(
-            modelPath: modelPath, tokenizerPath: tokenizerPath)
-      }
+      // Create runner.
+      runnerHolder.runner =
+        runnerHolder.runner
+        ?? Runner(
+          modelPath: modelPath, tokenizerPath: tokenPath)
 
+      // Generate response.
       guard !shouldStopGenerating else { return }
-      if useLlama {
-        if let runner = runnerHolder.runner, !runner.isLoaded() {
-          var error: Error?
-          let startLoadTime = Date()
-          do {
-            try runner.load()
-          } catch let loadError {
-            error = loadError
-          }
+      if let runner = runnerHolder.runner, !runner.isLoaded() {
+        var error: Error?
+        let startLoadTime = Date()
+        do {
+          try runner.load()
+        } catch let loadError {
+          error = loadError
+        }
 
-          let loadTime = Date().timeIntervalSince(startLoadTime)
-          DispatchQueue.main.async {
-            withAnimation {
-              var message = messages.removeLast()
-              message.type = .info
-              if let error {
-                message.text =
-                  "Model loading failed: error \((error as NSError).code)"
-              } else {
-                message.text =
-                  "Model loaded in \(String(format: "%.2f", loadTime)) s"
-              }
-              messages.append(message)
-              if error == nil {
-                messages.append(Message(type: .llamagenerated))
-              }
+        let loadTime = Date().timeIntervalSince(startLoadTime)
+        DispatchQueue.main.async {
+          withAnimation {
+            var message = messages.removeLast()
+            message.type = .info
+            if let error {
+              message.text =
+                "Model loading failed: error \((error as NSError).code)"
+            } else {
+              message.text =
+                "Model loaded in \(String(format: "%.2f", loadTime)) s"
             }
-          }
-          if error != nil {
-            return
+            messages.append(message)
+            if error == nil {
+              messages.append(Message(type: .llamagenerated))
+            }
           }
         }
-      } else {
-        if let runner = runnerHolder.llavaRunner, !runner.isLoaded() {
-          var error: Error?
-          let startLoadTime = Date()
-          do {
-            try runner.load()
-          } catch let loadError {
-            error = loadError
-          }
-
-          let loadTime = Date().timeIntervalSince(startLoadTime)
-          DispatchQueue.main.async {
-            withAnimation {
-              var message = messages.removeLast()
-              message.type = .info
-              if let error {
-                message.text =
-                  "Model loading failed: error \((error as NSError).code)"
-              } else {
-                message.text =
-                  "Model loaded in \(String(format: "%.2f", loadTime)) s"
-              }
-              messages.append(message)
-              if error == nil {
-                messages.append(Message(type: .llavagenerated))
-              }
-            }
-          }
-          if error != nil {
-            return
-          }
+        if error != nil {
+          return
         }
       }
 
@@ -338,81 +260,37 @@ struct ContentView: View {
       }
       do {
         var tokens: [String] = []
-        var rgbArray: [UInt8]?
-        let MAX_WIDTH = 336.0
-        var newHeight = 0.0
-        var imageBuffer: UnsafeMutableRawPointer?
 
-        if let img = selectedImage {
-          let llava_prompt = "\(text) ASSISTANT"
+        let llama3_prompt =
+          "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\(text)<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
 
-          newHeight = MAX_WIDTH * img.size.height / img.size.width
-          let resizedImage = img.resized(
-            to: CGSize(width: MAX_WIDTH, height: newHeight))
-          rgbArray = resizedImage.toRGBArray()
-          imageBuffer = UnsafeMutableRawPointer(mutating: rgbArray)
+        try runnerHolder.runner?.generate(
+          llama3_prompt, sequenceLength: seq_len
+        ) { token in
 
-          try runnerHolder.llavaRunner?.generate(
-            imageBuffer!, width: MAX_WIDTH, height: newHeight,
-            prompt: llava_prompt, sequenceLength: seq_len
-          ) { token in
-
-            if token != llava_prompt {
-              if token == "</s>" {
-                shouldStopGenerating = true
-                runnerHolder.llavaRunner?.stop()
-              } else {
-                tokens.append(token)
-                if tokens.count > 2 {
-                  let text = tokens.joined()
-                  let count = tokens.count
-                  tokens = []
-                  DispatchQueue.main.async {
-                    var message = messages.removeLast()
-                    message.text += text
-                    message.tokenCount += count
-                    message.dateUpdated = Date()
-                    messages.append(message)
-                  }
-                }
-                if shouldStopGenerating {
-                  runnerHolder.llavaRunner?.stop()
+          NSLog(">>> token={\(token)}")
+          if token != llama3_prompt {
+            // hack to fix the issue that extension/llm/runner/text_token_generator.h
+            // keeps generating after <|eot_id|>
+            if token == "<|eot_id|>" {
+              shouldStopShowingToken = true
+            } else {
+              tokens.append(
+                token.trimmingCharacters(in: .newlines))
+              if tokens.count > 2 {
+                let text = tokens.joined()
+                let count = tokens.count
+                tokens = []
+                DispatchQueue.main.async {
+                  var message = messages.removeLast()
+                  message.text += text
+                  message.tokenCount += count
+                  message.dateUpdated = Date()
+                  messages.append(message)
                 }
               }
-            }
-          }
-        } else {
-          let llama3_prompt =
-            "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\(text)<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
-
-          try runnerHolder.runner?.generate(
-            llama3_prompt, sequenceLength: seq_len
-          ) { token in
-
-            NSLog(">>> token={\(token)}")
-            if token != llama3_prompt {
-              // hack to fix the issue that extension/llm/runner/text_token_generator.h
-              // keeps generating after <|eot_id|>
-              if token == "<|eot_id|>" {
-                shouldStopShowingToken = true
-              } else {
-                tokens.append(
-                  token.trimmingCharacters(in: .newlines))
-                if tokens.count > 2 {
-                  let text = tokens.joined()
-                  let count = tokens.count
-                  tokens = []
-                  DispatchQueue.main.async {
-                    var message = messages.removeLast()
-                    message.text += text
-                    message.tokenCount += count
-                    message.dateUpdated = Date()
-                    messages.append(message)
-                  }
-                }
-                if shouldStopGenerating {
-                  runnerHolder.runner?.stop()
-                }
+              if shouldStopGenerating {
+                runnerHolder.runner?.stop()
               }
             }
           }
